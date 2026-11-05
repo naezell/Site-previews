@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Class Lawn Care &amp; Oilfield Services | Rockdale, TX</title>
+<meta name="description" content="Residential lawn care and oilfield site mowing and clearing in Rockdale and Milam County, Texas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --steel:#262C33; --steel-2:#343C45; --concrete:#ECECE7; --orange:#F2661B; --orange-2:#D6520C;
+  --caliche:#D8C7A0; --turf:#4E8A3E; --white:#fff; --ink:#1A1F24; --muted:#5B636B; --line:rgba(38,44,51,.16);
+  --wrap:1200px; --gut:clamp(16px,4vw,40px);
+  --display:"Barlow Condensed",system-ui,sans-serif; --body:"Barlow",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--white);color:var(--ink);font-family:var(--body);font-size:17.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+svg{display:block;max-width:100%}
+a{color:inherit}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gut)}
+h1,h2,h3{font-family:var(--display);font-weight:800;margin:0;line-height:.98;letter-spacing:-.005em}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:2px;padding:15px 24px;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.01em;text-decoration:none;cursor:pointer;transition:background .15s}
+.btn-orange{background:var(--orange);color:#fff}.btn-orange:hover{background:var(--orange-2)}
+.btn-steel{background:var(--steel);color:#fff}.btn-steel:hover{background:var(--steel-2)}
+.btn-line{color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.45)}.btn-line:hover{box-shadow:inset 0 0 0 2px #fff}
+
+.top{background:var(--steel);color:#fff;border-bottom:4px solid var(--orange)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:76px;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand .mark{width:42px;height:42px;background:var(--orange);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:20px;color:#fff;clip-path:polygon(0 0,100% 0,100% 72%,72% 100%,0 100%)}
+.brand b{font-family:var(--display);font-weight:800;font-size:22px;line-height:1;display:block}
+.brand small{display:block;color:#AEB6BE;font-size:13px}
+.nav{display:flex;align-items:center;gap:24px;font-weight:500;font-size:15.5px}
+.nav a{text-decoration:none;color:#C9D0D6}
+.nav a:hover{color:#fff}
+.nav .btn{padding:9px 16px;font-size:18px;color:#fff}
+
+/* split hero */
+.split{display:grid;grid-template-columns:1fr 1fr;min-height:min(78vh,700px)}
+.side{position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(28px,4vw,56px);overflow:hidden;text-decoration:none;color:#fff;transition:flex .3s}
+.side.home{background:#3E6E34}
+.side.lease{background:var(--steel)}
+.side svg.scene{position:absolute;inset:0;width:100%;height:100%}
+.side .txt{position:relative;z-index:2;max-width:30ch}
+.side::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none}
+.side.home::after{background:linear-gradient(0deg,rgba(28,58,24,.92) 0%,rgba(28,58,24,.55) 38%,rgba(28,58,24,0) 62%)}
+.side.lease::after{background:linear-gradient(0deg,rgba(26,31,36,.94) 0%,rgba(26,31,36,.6) 40%,rgba(26,31,36,0) 64%)}
+.side .k{display:inline-block;background:#fff;color:var(--ink);font-family:var(--display);font-weight:700;font-size:16px;padding:4px 10px;margin-bottom:14px}
+.side.lease .k{background:var(--orange);color:#fff}
+.side h2{font-size:clamp(40px,5vw,72px)}
+.side p{margin:12px 0 0;color:rgba(255,255,255,.85);font-size:17.5px}
+.side .go{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-family:var(--display);font-weight:700;font-size:20px;border-bottom:3px solid currentColor;padding-bottom:2px}
+.side:hover .go,.side:focus-visible .go{color:#FFD9C2}
+.side.home:hover .go,.side.home:focus-visible .go{color:#E3F5D6}
+.title-bar{background:var(--concrete)}
+.title-bar .wrap{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(24px,5vw,64px);align-items:end;padding-top:clamp(40px,5vw,64px);padding-bottom:clamp(40px,5vw,64px)}
+.title-bar h1{font-size:clamp(46px,6.6vw,96px);color:var(--steel)}
+.title-bar h1 span{color:var(--orange)}
+.title-bar p{margin:0;color:var(--muted);font-size:18.5px}
+.title-bar .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+
+section{padding:clamp(72px,9vw,120px) 0}
+.h2{font-size:clamp(40px,5.4vw,72px);color:var(--steel);max-width:16ch}
+.intro{color:var(--muted);font-size:18.5px;max-width:56ch;margin:16px 0 0}
+
+/* switcher */
+.switch{display:inline-flex;margin-top:30px;border:2px solid var(--steel)}
+.switch button{all:unset;cursor:pointer;padding:12px 22px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--steel)}
+.switch button[aria-selected="true"]{background:var(--steel);color:#fff}
+.switch button:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.panel{margin-top:40px}
+.panel[hidden]{display:none}
+.svc{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border:2px solid var(--line)}
+.svc article{background:#fff;padding:28px 26px 30px}
+.svc .num{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;color:var(--orange)}
+.panel.home .svc .num{color:var(--turf)}
+.svc h3{font-size:28px;color:var(--steel);margin:0 0 8px}
+.svc h3::before{content:"";display:block;width:30px;height:5px;background:var(--orange);margin-bottom:16px}
+.panel.home .svc h3::before{background:var(--turf)}
+.svc p{margin:0;color:var(--muted)}
+
+/* why band */
+.band{background:var(--steel);color:#fff}
+.band .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,4vw,48px)}
+.band h3{font-size:30px;color:#fff}
+.band h3::before{content:"";display:block;width:36px;height:6px;background:var(--orange);margin-bottom:16px}
+.band p{color:#C1C8CF;margin:10px 0 0}
+
+/* area */
+.area .wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,80px);align-items:center}
+.map{background:var(--concrete);padding:20px}
+.map svg{width:100%;height:auto}
+
+/* contact */
+.contact{background:var(--concrete)}
+.contact .wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,80px);align-items:start}
+.phone{display:inline-block;white-space:nowrap;margin-top:24px;font-family:var(--display);font-weight:800;font-size:clamp(40px,5vw,64px);line-height:1;color:var(--steel);text-decoration:none}
+.phone::after{content:"";display:block;height:6px;background:var(--orange);margin-top:6px}
+.hours{margin-top:30px;border-collapse:collapse;width:100%;max-width:420px;font-size:17px}
+.hours td{padding:12px 0;border-top:1px solid var(--line)}
+.hours tr:last-child td{border-bottom:1px solid var(--line)}
+.hours td:last-child{text-align:right;font-weight:600}
+form{background:#fff;padding:clamp(24px,4vw,40px);border-top:6px solid var(--orange)}
+form h3{font-size:34px;color:var(--steel)}
+form p.sub{color:var(--muted);margin:8px 0 20px}
+.field{display:block;margin-bottom:15px}
+.field>span{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;font:inherit;font-size:16px;padding:13px 14px;border:2px solid #CDD2D6;border-radius:2px;background:#fff;color:var(--ink)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--steel);box-shadow:0 0 0 3px rgba(242,102,27,.3)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+form .btn{width:100%}
+.ok{display:none;margin-top:14px;padding:12px 14px;background:#FFF1E8;border-left:4px solid var(--orange);font-size:15.5px}
+.ok.show{display:block}
+footer{background:var(--steel);color:#9AA3AB;font-size:14.5px;padding:26px 0 110px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.callbar{display:none}
+
+@media (max-width:960px){
+  .nav a:not(.btn){display:none}
+  .title-bar .wrap,.area .wrap,.contact .wrap{grid-template-columns:1fr}
+  .svc{grid-template-columns:1fr 1fr}
+  .band .wrap{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  body{font-size:16.5px}
+  .nav .btn{display:none}
+  .brand small{display:none}
+  .split{grid-template-columns:1fr;min-height:0}
+  .side{min-height:330px}
+  .svc{grid-template-columns:1fr}
+  .switch{display:flex}
+  .switch button{flex:1;text-align:center;padding:12px 8px;font-size:18px}
+  .row2{grid-template-columns:1fr}
+  .callbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(38,44,51,.97)}
+  .callbar .btn{padding:12px 8px;font-size:18px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><span class="mark" aria-hidden="true">WC</span><span><b>World Class</b><small>Lawn Care &amp; Oilfield Services</small></span></a>
+    <nav class="nav" aria-label="Main"><a href="#services">Services</a><a href="#area">Service area</a><a href="#contact">Contact</a><a class="btn btn-orange" href="tel:+15124291302">(512) 429-1302</a></nav>
+  </div>
+</header>
+
+<main>
+<section class="title-bar" style="padding:0" aria-labelledby="h1">
+  <div class="wrap">
+    <h1 id="h1">Front yards to <span>lease roads.</span></h1>
+    <div>
+      <p>One Rockdale crew for both: weekly lawn care for homes, and mowing and clearing for well sites, lease roads and right-of-way.</p>
+      <div class="ctas"><a class="btn btn-orange" href="#contact">Get a quote</a><a class="btn btn-steel" href="tel:+15124291302">Call (512) 429-1302</a></div>
+    </div>
+  </div>
+</section>
+
+<div class="split" aria-label="Choose a service type">
+  <a class="side home" href="#services" data-pick="home">
+    <svg class="scene" viewBox="0 0 600 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect width="600" height="500" fill="#3E6E34"/>
+      <rect y="0" width="600" height="260" fill="#9CC7DE"/>
+      <circle cx="470" cy="80" r="34" fill="#F6E7A8"/>
+      <path d="M0 250 Q150 230 300 245 T600 238 V260 H0Z" fill="#6E9A5B"/>
+      <g transform="translate(300 140)"><rect x="0" y="40" width="190" height="90" fill="#F1ECE2"/><path d="M-14 46 L95 0 L204 46Z" fill="#7A3E2B"/><rect x="80" y="76" width="30" height="54" fill="#5A4636"/><rect x="22" y="64" width="34" height="30" fill="#9CC7DE"/><rect x="134" y="64" width="34" height="30" fill="#9CC7DE"/></g>
+      <g id="stripes"></g>
+      <g transform="translate(70 214) scale(.8)"><rect x="0" y="10" width="70" height="34" rx="6" fill="#F2661B"/><rect x="-6" y="38" width="82" height="8" fill="#262C33"/><circle cx="12" cy="50" r="10" fill="#262C33"/><circle cx="60" cy="50" r="10" fill="#262C33"/><path d="M70 14 L110 -36" stroke="#262C33" stroke-width="6" stroke-linecap="round"/><path d="M100 -40 h20" stroke="#262C33" stroke-width="6" stroke-linecap="round"/></g>
+    </svg>
+    <div class="txt"><span class="k">Residential</span><h2>Your home</h2><p>Mowing, edging, trimming and cleanups on a regular schedule.</p><span class="go">See home services</span></div>
+  </a>
+  <a class="side lease" href="#services" data-pick="field">
+    <svg class="scene" viewBox="0 0 600 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect width="600" height="500" fill="#262C33"/>
+      <rect y="0" width="600" height="270" fill="#E9A15F"/>
+      <rect y="0" width="600" height="150" fill="#F1BE84"/>
+      <circle cx="150" cy="120" r="44" fill="#FBE3B8"/>
+      <path d="M0 262 Q200 248 380 258 T600 252 V280 H0Z" fill="#8B7A55"/>
+      <rect y="276" width="600" height="224" fill="#B79E6B"/>
+      <path d="M300 500 L360 276 H396 L520 500Z" fill="#D8C7A0"/>
+      <g fill="#262C33">
+        <rect x="380" y="230" width="10" height="48"/><rect x="460" y="230" width="10" height="48"/>
+        <path d="M374 232 L425 150 L476 232 Z" fill="none" stroke="#262C33" stroke-width="7"/>
+        <rect x="330" y="140" width="190" height="16" rx="6" transform="rotate(-8 425 148)"/>
+        <path d="M322 152 q-24 12 -16 58" stroke="#262C33" stroke-width="12" fill="none"/>
+        <rect x="300" y="208" width="14" height="70"/>
+        <rect x="490" y="200" width="44" height="40" rx="4"/>
+        <rect x="380" y="274" width="160" height="8"/>
+      </g>
+      <g fill="#3D3A2E" opacity=".7"><path d="M40 300 q10-24 20 0z"/><path d="M90 320 q12-28 24 0z"/><path d="M200 296 q8-20 16 0z"/><path d="M540 330 q12-26 24 0z"/></g>
+    </svg>
+    <div class="txt"><span class="k">Oilfield</span><h2>Your lease site</h2><p>Location and lease road mowing, brush clearing and site cleanup.</p><span class="go">See oilfield services</span></div>
+  </a>
+</div>
+
+<section id="services" aria-labelledby="svc-h">
+  <div class="wrap">
+    <h2 id="svc-h" class="h2">Services</h2>
+    <div class="switch" role="tablist" aria-label="Service type">
+      <button role="tab" id="tab-home" aria-controls="p-home" aria-selected="true">For homes</button>
+      <button role="tab" id="tab-field" aria-controls="p-field" aria-selected="false">For oilfield sites</button>
+    </div>
+    <div class="panel home" id="p-home" role="tabpanel" aria-labelledby="tab-home">
+      <div class="svc">
+        <article><h3>Mowing</h3><p>Weekly or every other week, cut clean and blown off.</p></article>
+        <article><h3>Edging and trimming</h3><p>Sharp lines along drives and walks, trimmed around every post.</p></article>
+        <article><h3>Yard cleanups</h3><p>Overgrown yards, leaves and limbs cleared and hauled off.</p></article>
+        <article><h3>Acreage mowing</h3><p>Bigger lots and rural property kept cut and manageable.</p></article>
+        <article><h3>Fence lines</h3><p>Brush and weeds cleared back from fences and gates.</p></article>
+        <article><h3>Move-out ready</h3><p>One-time cleanups for rentals and homes going on the market.</p></article>
+      </div>
+    </div>
+    <div class="panel field" id="p-field" role="tabpanel" aria-labelledby="tab-field" hidden>
+      <div class="svc">
+        <article><h3>Location mowing</h3><p>Pads, tank batteries and well sites kept cut on a schedule you set.</p></article>
+        <article><h3>Lease road mowing</h3><p>Shoulders and ditches mowed so roads stay clear and passable.</p></article>
+        <article><h3>Brush clearing</h3><p>Overgrowth cut back from equipment, fences and access points.</p></article>
+        <article><h3>Right-of-way</h3><p>Pipeline and utility right-of-way mowing and clearing.</p></article>
+        <article><h3>Weed eating</h3><p>Hand trimming around wellheads, valves and tight spots a mower can't reach.</p></article>
+        <article><h3>Site cleanup</h3><p>Trash, debris and brush piles cleared off location.</p></article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-label="Why World Class">
+  <div class="wrap">
+    <div><h3>Local to Rockdale</h3><p>Based on North Main Street, close to the homes and leases we work.</p></div>
+    <div><h3>Set schedules</h3><p>Weekly, every other week or monthly, for a front yard or a whole route of sites.</p></div>
+    <div><h3>Six days a week</h3><p>Monday to Friday 8 to 6, and Saturday 9 to 3.</p></div>
+  </div>
+</section>
+
+<section class="area" id="area" aria-labelledby="area-h">
+  <div class="wrap">
+    <div>
+      <h2 id="area-h" class="h2">Rockdale and the area around it.</h2>
+      <p class="intro">Homes in and around Rockdale, and oilfield work across Milam County and nearby. Not sure we reach you? Call and ask.</p>
+    </div>
+    <div class="map">
+      <svg viewBox="0 0 520 380" role="img" aria-labelledby="mt">
+        <title id="mt">Simple map with Rockdale at the center and nearby towns Cameron, Thorndale, Milano, Minerva and Gause around it</title>
+        <rect width="520" height="380" fill="#ECECE7"/>
+        <g stroke="#CBCBC2" stroke-width="1">
+          <path d="M0 95H520M0 190H520M0 285H520M130 0V380M260 0V380M390 0V380"/>
+        </g>
+        <path d="M20 250 L180 210 L260 190 L360 172 L500 120" stroke="#9BA1A6" stroke-width="5" fill="none"/>
+        <path d="M260 190 L250 60" stroke="#9BA1A6" stroke-width="4" fill="none"/>
+        <path d="M260 190 L320 330" stroke="#9BA1A6" stroke-width="4" fill="none"/>
+        <circle cx="260" cy="190" r="150" fill="#F2661B" opacity=".08"/>
+        <circle cx="260" cy="190" r="150" fill="none" stroke="#F2661B" stroke-width="2" stroke-dasharray="6 6"/>
+        <g font-family="Barlow" font-size="14" fill="#262C33">
+          <circle cx="250" cy="70" r="5"/><text x="262" y="74">Cameron</text>
+          <circle cx="130" cy="222" r="5"/><text x="70" y="244">Thorndale</text>
+          <circle cx="368" cy="170" r="5"/><text x="380" y="166">Milano</text>
+          <circle cx="306" cy="122" r="5"/><text x="318" y="126">Minerva</text>
+          <circle cx="452" cy="196" r="5"/><text x="464" y="200">Gause</text>
+        </g>
+        <rect x="246" y="176" width="28" height="28" fill="#F2661B" transform="rotate(45 260 190)"/>
+        <text x="260" y="234" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="26" fill="#262C33">ROCKDALE</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact" aria-labelledby="ct-h">
+  <div class="wrap">
+    <div>
+      <h2 id="ct-h" class="h2">Get a quote.</h2>
+      <p class="intro">For a single yard or a list of sites. Call, or send the form with what you need.</p>
+      <a class="phone" href="tel:+15124291302">(512) 429-1302</a>
+      <table class="hours" aria-label="Hours"><tr><td>Monday to Friday</td><td>8 am to 6 pm</td></tr><tr><td>Saturday</td><td>9 am to 3 pm</td></tr><tr><td>Sunday</td><td>Closed</td></tr></table>
+    </div>
+    <form id="quote" novalidate>
+      <h3>Request a quote</h3>
+      <p class="sub">We'll call you back to go over the details.</p>
+      <label class="field"><span>This is for</span><select name="type" id="type"><option value="home">My home or property</option><option value="field">Oilfield sites or right-of-way</option></select></label>
+      <div class="row2">
+        <label class="field"><span>Name</span><input name="name" autocomplete="name"></label>
+        <label class="field"><span>Phone</span><input name="phone" type="tel" autocomplete="tel"></label>
+      </div>
+      <label class="field"><span id="locl">Address</span><input name="loc"></label>
+      <label class="field"><span>Details</span><textarea name="notes" rows="3" id="notes" placeholder="Front and back yard, weekly"></textarea></label>
+      <button class="btn btn-orange" type="submit">Request my quote</button>
+      <p class="ok" id="ok" role="status">This is a preview, so the form isn't connected yet. Call (512) 429-1302.</p>
+    </form>
+  </div>
+</section>
+</main>
+<footer><div class="wrap"><span>© World Class Lawn Care &amp; Oilfield Services, Rockdale, TX</span><span>Website concept preview</span></div></footer>
+<div class="callbar"><a class="btn btn-orange" href="tel:+15124291302">Call</a><a class="btn btn-line" href="#contact">Quote</a></div>
+<script>
+// mow stripes in home scene
+const st=document.getElementById('stripes');const NS='http://www.w3.org/2000/svg';
+for(let i=0;i<10;i++){const p=document.createElementNS(NS,'path');p.setAttribute('d',`M${-100+i*90} 500 L${230+i*45} 260 L${252+i*45} 260 L${-55+i*90} 500Z`);p.setAttribute('fill',i%2?'#4C8240':'#3E6E34');st.appendChild(p)}
+const tabs={home:document.getElementById('tab-home'),field:document.getElementById('tab-field')};
+const panels={home:document.getElementById('p-home'),field:document.getElementById('p-field')};
+function pick(k){for(const x in tabs){tabs[x].setAttribute('aria-selected',x===k);panels[x].hidden=x!==k}
+  document.getElementById('type').value=k;setForm(k)}
+function setForm(k){document.getElementById('locl').textContent=k==='field'?'Lease or site location':'Address';document.getElementById('notes').placeholder=k==='field'?'Number of sites, roads or miles of right-of-way, how often':'Front and back yard, weekly'}
+tabs.home.onclick=()=>pick('home');tabs.field.onclick=()=>pick('field');
+document.querySelector('.switch').addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const k=tabs.home.getAttribute('aria-selected')==='true'?'field':'home';pick(k);tabs[k].focus()}});
+document.querySelectorAll('[data-pick]').forEach(a=>a.addEventListener('click',()=>pick(a.dataset.pick)));
+document.getElementById('type').addEventListener('change',e=>setForm(e.target.value));
+document.getElementById('quote').addEventListener('submit',e=>{e.preventDefault();document.getElementById('ok').classList.add('show')});
+</script>
+</body>
+</html>
