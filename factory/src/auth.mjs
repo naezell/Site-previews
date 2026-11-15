@@ -26,7 +26,8 @@ async function keys(issuer) {
 export async function administrator(request, env, access) {
   const host = new URL(request.url).hostname;
   if (env.LOCAL_DEV === '1' && ['127.0.0.1', 'localhost'].includes(host)) return 'local-developer';
-  if (access) {
+  const audience = env.ACCESS_AUD;
+  if (audience && access?.aud === audience) {
     try {
       const identity = await access.getIdentity();
       if (typeof identity?.email === 'string' && identity.email) return identity.email;
@@ -37,7 +38,6 @@ export async function administrator(request, env, access) {
   }
   const token = request.headers.get('Cf-Access-Jwt-Assertion');
   const issuer = env.ACCESS_ISSUER;
-  const audience = env.ACCESS_AUD;
   if (!token || token.length > 8192 || !audience || !/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/.test(issuer ?? '')) {
     throw new Problem(403, 'Sign in through Cloudflare Access to open the team dashboard.');
   }
