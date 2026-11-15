@@ -353,7 +353,7 @@ async function admin(db, request, url, actor) {
 }
 
 export default {
-  async fetch(request,env) {
+  async fetch(request,env,ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
     try {
@@ -362,7 +362,7 @@ export default {
       if (request.method === 'GET' && path === '/') return redirect('/admin');
       if (request.method === 'GET' && path === '/intake.js') return send(view.intakeScript,200,{'Content-Type':'text/javascript; charset=utf-8'});
       const db = database(env);
-      if (path === '/admin' || path.startsWith('/admin/')) return await admin(db,request,url,await administrator(request,env));
+      if (path === '/admin' || path.startsWith('/admin/')) return await admin(db,request,url,await administrator(request,env,ctx?.access));
       return await customer(db,request,path);
     } catch (error) {
       const duplicate = /UNIQUE constraint failed: (prospects.identity|previews.url)/.test(error.message);

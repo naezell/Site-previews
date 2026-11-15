@@ -184,3 +184,15 @@ test('Access authentication accepts a signed assertion for only the configured a
   assert.equal((await call({exp:0})).status,403);
   assert.equal((await call({aud:['other-app']})).status,403);
 });
+
+test('dashboard accepts Cloudflare runtime identity and rejects identity headers alone', async () => {
+  const { binding } = sqlite();
+  const env = { DB:binding };
+  const url = 'https://factory.example.com/admin';
+  const identity = { getIdentity: async () => ({ email:'team@example.com' }) };
+  assert.equal((await app.fetch(new Request(url),env,{ access:identity })).status,200);
+
+  const header = { 'Cf-Access-Authenticated-User-Email':'team@example.com' };
+  assert.equal((await app.fetch(new Request(url,{ headers:header }),env,{})).status,403);
+  assert.equal((await app.fetch(new Request(url),env,{ access:{ getIdentity:async () => ({}) } })).status,403);
+});

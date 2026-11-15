@@ -23,15 +23,25 @@ async function keys(issuer) {
   return keys;
 }
 
-export async function administrator(request, env) {
+export async function administrator(request, env, access) {
   const host = new URL(request.url).hostname;
   if (env.LOCAL_DEV === '1' && ['127.0.0.1', 'localhost'].includes(host)) return 'local-developer';
+  if (access) {
+    try {
+      const identity = await access.getIdentity();
+      if (typeof identity?.email === 'string' && identity.email) return identity.email;
+      console.warn('Factory Access authentication: verified identity has no email');
+    } catch {
+      console.warn('Factory Access authentication: runtime identity unavailable');
+    }
+  }
   const token = request.headers.get('Cf-Access-Jwt-Assertion');
   const issuer = env.ACCESS_ISSUER;
   const audience = env.ACCESS_AUD;
   if (!token || token.length > 8192 || !audience || !/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/.test(issuer ?? '')) {
     throw new Problem(403, 'Sign in through Cloudflare Access to open the team dashboard.');
   }
+  let check = 'token format';
   try {
     const parts = token.split('.');
     if (parts.length !== 3) throw Error();
@@ -39,15 +49,20 @@ export async function administrator(request, env) {
     const { alg, kid } = read(header);
     const claims = read(payload);
     const now = Math.floor(Date.now() / 1000);
-    if (alg !== 'RS256' || claims.iss !== issuer || !Array.isArray(claims.aud) || !claims.aud.includes(audience) ||
-        !Number.isFinite(claims.exp) || claims.exp <= now || (claims.nbf !== undefined && claims.nbf > now) ||
+    check = 'issuer or audience';
+    if (alg !== 'RS256' || claims.iss !== issuer || !Array.isArray(claims.aud) || !claims.aud.includes(audience)) throw Error();
+    check = 'expiration or identity';
+    if (!Number.isFinite(claims.exp) || claims.exp <= now || (claims.nbf !== undefined && claims.nbf > now) ||
         typeof claims.email !== 'string' || !claims.email) throw Error();
+    check = 'signing key';
     const jwk = (await keys(issuer)).find(key => key.kid === kid);
     if (!jwk) throw Error();
     const key = await crypto.subtle.importKey('jwk', jwk, { name:'RSASSA-PKCS1-v1_5', hash:'SHA-256' }, false, ['verify']);
+    check = 'signature';
     if (!await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, decode(signature), encoder.encode(header + '.' + payload))) throw Error();
     return claims.email;
   } catch {
+    console.warn('Factory Access authentication failed:', check);
     throw new Problem(403, 'Team sign-in could not be verified.');
   }
 }
