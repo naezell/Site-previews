@@ -30,7 +30,7 @@ const paidReview = status => status === 'legacy' ? 'Existing Pages demo' : 'Fact
 export function dashboard(rows, filters, industries, salespeople, counts, page, next) {
   const query = new URLSearchParams(Object.entries(filters).filter(([, v]) => v));
   const pageLink = number => { query.set('page', number); return '/admin?' + e(query); };
-  return shell('Prospects', '<div class="bar"><div><h1>Prospects</h1><p class="muted">Review businesses, demos, and customer requests.</p></div><div class="actions"><a class="button secondary" href="/admin/discover">Find businesses</a><a class="button" href="/admin/new">Add prospect</a></div></div>' +
+  return shell('Prospects', '<div class="bar"><div><h1>Prospects</h1><p class="muted">Manage prospects, open their website demos, and review customer requests.</p></div><div class="actions"><a class="button secondary" href="https://7d-website-demos.pages.dev/" target="_blank" rel="noopener noreferrer">Existing demo gallery</a><a class="button secondary" href="/admin/discover">Find businesses</a><a class="button" href="/admin/new">Add prospect</a></div></div>' +
     '<div class="grid metrics">' + [[counts.all, 'Prospects'], [counts.previews, 'Previews'], [counts.submitted, 'Prospects with submissions']].map(([c,l]) =>
       '<div class="card"><strong>' + e(c) + '</strong>' + e(l) + '</div>').join('') + '</div>' +
     '<form class="card filter" action="/admin"><div class="grid">' +
@@ -43,7 +43,8 @@ export function dashboard(rows, filters, industries, salespeople, counts, page, 
     (rows.length ? '<div class="table"><table><thead><tr><th>Business</th><th>Website status</th><th>Sales stage</th><th>Salesperson</th><th>Previews</th></tr></thead><tbody>' +
       rows.map(p => '<tr><td><a href="/admin/prospect/' + e(p.id) + '">' + e(p.name) + '</a><br><small>' + e([p.industry,p.location].filter(Boolean).join(' · ')) + '</small></td><td>' + e(verification[p.verification]) +
         '</td><td>' + e(p.stage) + '</td><td>' + e(p.salesperson || 'Unassigned') + '</td><td>' + e(p.preview_count) +
-        (p.submission_count ? ' · ' + e(p.submission_count) + ' submitted' : '') + '</td></tr>').join('') + '</tbody></table></div>'
+        (p.existing_demo ? '<br>' + openLink(p.existing_demo,'Open demo') : '') +
+        (p.submission_count ? '<br>' + e(p.submission_count) + ' submitted' : '') + '</td></tr>').join('') + '</tbody></table></div>'
       : '<p class="card">No prospects match these filters.</p>') +
     '<nav class="bar" aria-label="Prospect pages">' + (page > 1 ? '<a href="' + pageLink(page - 1) + '">Previous page</a>' : '') +
     '<span>Page ' + page + '</span>' + (next ? '<a href="' + pageLink(page + 1) + '">Next page</a>' : '') + '</nav>', { admin:true });

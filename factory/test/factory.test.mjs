@@ -136,6 +136,8 @@ test('dashboard filters, duplicate guard, and concurrent edit checks',async () =
   const { call } = context(true);
   const filtered = await (await call('/admin?industry=Pressure+washing&q=Example+Pressure+Washing')).text();
   assert.match(filtered,/Example Pressure Washing/);
+  assert.match(filtered,/Existing demo gallery/);
+  assert.match(filtered,/https:\/\/demo\.example\.com\/alternate\/.*Open demo/);
   assert.doesNotMatch(filtered,/Oak &amp; Elm/);
   const fields = { ...copy,industry:'Test',verification:'unreviewed',stage:'Discovered' };
   const loc = (await call('/admin/new',fields)).headers.get('location');

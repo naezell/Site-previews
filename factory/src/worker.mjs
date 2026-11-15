@@ -140,7 +140,9 @@ async function list(db,url) {
   const page = Math.max(1, Math.min(10_000, Number.parseInt(url.searchParams.get('page'),10) || 1));
   const [rows,industries,salespeople,counts] = await Promise.all([
     db.all(`SELECT p.*,(SELECT count(*) FROM previews v WHERE v.prospect_id=p.id) AS preview_count,
-      (SELECT count(*) FROM submissions s JOIN previews v ON v.id=s.preview_id WHERE v.prospect_id=p.id) AS submission_count
+      (SELECT count(*) FROM submissions s JOIN previews v ON v.id=s.preview_id WHERE v.prospect_id=p.id) AS submission_count,
+      (SELECT v.url FROM previews v WHERE v.prospect_id=p.id AND v.url IS NOT NULL
+        ORDER BY CASE WHEN v.url LIKE 'https://7d-website-demos.pages.dev/%' THEN 0 ELSE 1 END, v.label COLLATE NOCASE, v.id LIMIT 1) AS existing_demo
       FROM prospects p ${clause.length ? 'WHERE ' + clause.join(' AND ') : ''} ORDER BY p.name COLLATE NOCASE,p.id LIMIT 26 OFFSET ?`,
     ...active.map(([,value]) => value),(page - 1) * 25),
     db.all('SELECT DISTINCT industry FROM prospects ORDER BY industry'),
