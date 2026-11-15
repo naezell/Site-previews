@@ -191,7 +191,7 @@ async function fitImage(file, logo) {
     const mime = logo && file.type === 'image/png' ? 'image/png' : 'image/webp';
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    for (const edge of [1600,1200,900,650,450]) {
+    for (const edge of [1600,1200,900,650,450,320,240]) {
       const ratio = Math.min(1,edge / Math.max(bitmap.width,bitmap.height));
       canvas.width = Math.max(1,Math.round(bitmap.width * ratio));
       canvas.height = Math.max(1,Math.round(bitmap.height * ratio));
