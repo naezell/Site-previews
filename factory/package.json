@@ -1,0 +1,1 @@
+{"name":"7d-website-factory","private":true,"type":"module","scripts":{"test":"node --test test/*.test.mjs","seed":"node scripts/seed.mjs"},"engines":{"node":">=24"}}
