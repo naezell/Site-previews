@@ -1,4 +1,4 @@
-import { escape as e, external, longFields, looks, siteFields, stages, verification } from './model.mjs';
+import { escape as e, external, longFields, looks, offerPrice, pilotStatuses, siteFields, stages, verification } from './model.mjs';
 
 const css = `
 :root{color-scheme:light;--ink:#182823;--muted:#4d6059;--line:#d5ded8;--paper:#fff;--base:#f3f6f3;--brand:#175346;font:16px/1.55 system-ui,sans-serif}
@@ -26,11 +26,14 @@ const post = (path, inside) => '<form method="post" action="' + e(path) + '">' +
 const button = (title, extra = '') => '<button ' + extra + '>' + e(title) + '</button>';
 const hidden = (key, val) => '<input type="hidden" name="' + e(key) + '" value="' + e(val) + '">';
 const paidReview = status => status === 'legacy' ? 'Existing Pages demo' : 'Factory preview';
+const pilotLink = (id, inPilot) => inPilot
+  ? '<a href="/admin/pilot/' + e(id) + '">Open pilot record</a>'
+  : post('/admin/pilot/' + id + '/add',button('Add to pilot','class="secondary"'));
 
 export function dashboard(rows, filters, industries, salespeople, counts, page, next) {
   const query = new URLSearchParams(Object.entries(filters).filter(([, v]) => v));
   const pageLink = number => { query.set('page', number); return '/admin?' + e(query); };
-  return shell('Prospects', '<div class="bar"><div><h1>Prospects</h1><p class="muted">Manage prospects, open their website demos, and review customer requests.</p></div><div class="actions"><a class="button secondary" href="https://7d-website-demos.pages.dev/" target="_blank" rel="noopener noreferrer">Existing demo gallery</a><a class="button secondary" href="/admin/discover">Find businesses</a><a class="button" href="/admin/new">Add prospect</a></div></div>' +
+  return shell('Prospects', '<div class="bar"><div><h1>Prospects</h1><p class="muted">Manage prospects, open their website demos, and review customer requests.</p></div><div class="actions"><a class="button secondary" href="/admin/pilot">Sales pilot</a><a class="button secondary" href="https://7d-website-demos.pages.dev/" target="_blank" rel="noopener noreferrer">Existing demo gallery</a><a class="button secondary" href="/admin/discover">Find businesses</a><a class="button" href="/admin/new">Add prospect</a></div></div>' +
     '<div class="grid metrics">' + [[counts.all, 'Prospects'], [counts.previews, 'Previews'], [counts.submitted, 'Prospects with submissions']].map(([c,l]) =>
       '<div class="card"><strong>' + e(c) + '</strong>' + e(l) + '</div>').join('') + '</div>' +
     '<form class="card filter" action="/admin"><div class="grid">' +
@@ -40,15 +43,99 @@ export function dashboard(rows, filters, industries, salespeople, counts, page, 
     select('verification','Website status',{'':'All', ...verification},filters.verification) +
     select('stage','Sales stage',{'':'All', ...optionList(stages)},filters.stage) +
     '</div><div class="actions">' + button('Apply filters') + '<a href="/admin">Clear filters</a></div></form>' +
-    (rows.length ? '<div class="table"><table><thead><tr><th>Business</th><th>Website status</th><th>Sales stage</th><th>Salesperson</th><th>Previews</th></tr></thead><tbody>' +
+    (rows.length ? '<div class="table"><table><thead><tr><th>Business</th><th>Website status</th><th>Sales stage</th><th>Salesperson</th><th>Previews</th><th>Sales pilot</th></tr></thead><tbody>' +
       rows.map(p => '<tr><td><a href="/admin/prospect/' + e(p.id) + '">' + e(p.name) + '</a><br><small>' + e([p.industry,p.location].filter(Boolean).join(' · ')) + '</small></td><td>' + e(verification[p.verification]) +
         '</td><td>' + e(p.stage) + '</td><td>' + e(p.salesperson || 'Unassigned') + '</td><td>' + e(p.preview_count) +
         (p.existing_demo ? '<br>' + openLink(p.existing_demo,'Open demo') : '') +
-        (p.submission_count ? '<br>' + e(p.submission_count) + ' submitted' : '') + '</td></tr>').join('') + '</tbody></table></div>'
+        (p.submission_count ? '<br>' + e(p.submission_count) + ' submitted' : '') + '</td><td>' +
+        pilotLink(p.id,p.in_pilot) + '</td></tr>').join('') + '</tbody></table></div>'
       : '<p class="card">No prospects match these filters.</p>') +
     '<nav class="bar" aria-label="Prospect pages">' + (page > 1 ? '<a href="' + pageLink(page - 1) + '">Previous page</a>' : '') +
     '<span>Page ' + page + '</span>' + (next ? '<a href="' + pageLink(page + 1) + '">Next page</a>' : '') + '</nav>', { admin:true });
 }
+
+export function salesPilot(offer, rows) {
+  const path = '/admin/pilot';
+  const paid = rows.filter(row => ['paid','launched'].includes(row.status)).length;
+  const launches = rows.filter(row => row.status === 'launched').length;
+  return shell('Sales pilot','<p><a href="/admin">← Prospects</a></p><div class="bar"><div><h1>Sales pilot</h1>' +
+    '<p class="muted">Shortlist ten businesses and work toward one paid launch.</p></div>' +
+    '<a class="button" href="/admin">Choose prospects</a></div>' +
+    '<div class="grid metrics">' + [[rows.length,'On shortlist'],[paid,'Paid'],[launches,'Launched']].map(([n,label]) =>
+      '<div class="card"><strong>' + n + '</strong>' + label + '</div>').join('') + '</div>' +
+    '<details><summary>Pilot offer · ' + e(offerPrice(offer.setup_cents)) + ' setup' +
+    (offer.monthly_cents ? ' · ' + e(offerPrice(offer.monthly_cents)) + '/month optional' : '') + '</summary>' +
+    post(path,hidden('revision',offer.revision) + '<div class="grid">' +
+      input('setup','Setup price ($)',offer.setup_cents / 100,14,'inputmode="decimal" required') +
+      input('monthly','Optional hosting and edits ($/month)',offer.monthly_cents / 100,14,'inputmode="decimal" required') +
+      input('days','Turnaround (business days)',offer.business_days,3,'inputmode="numeric" required') +
+      input('revisions','Included revision rounds',offer.revisions,2,'inputmode="numeric" required') + '</div>' +
+      area('scope','What the setup includes',offer.scope,800) +
+      input('sender','Sender name',offer.sender,100,'required') +
+      area('mailing_address','Business mailing address for email',offer.mailing_address,300) +
+      '<p class="muted">New drafts use these terms. Review saved drafts after changing your offer.</p>' +
+      button('Save offer')) + '</details><h2>Shortlist and follow-ups</h2>' +
+    (rows.length ? '<div class="table"><table><thead><tr><th>Business</th><th>Wave</th><th>Status</th><th>Follow-up</th></tr></thead><tbody>' +
+      rows.map(row => '<tr><td><a href="' + path + '/' + e(row.prospect_id) + '">' + e(row.name) +
+        '</a><br><small>' + e([row.location,row.email].filter(Boolean).join(' · ')) +
+        '</small></td><td>Wave ' + e(row.wave) + '</td><td><span class="tag">' + e(pilotStatuses[row.status]) +
+        '</span></td><td>' + e(row.follow_up || '—') + '</td></tr>').join('') + '</tbody></table></div>'
+      : '<p class="card">Use “Add to pilot” on a prospect to start your shortlist.</p>'), { admin:true });
+}
+
+export function pilotProspect(prospect, entry, offer, previews) {
+  const path = '/admin/pilot/' + e(prospect.id);
+  const record = '/admin/prospect/' + e(prospect.id);
+  const revision = hidden('revision',entry.revision);
+  const optedOut = entry.status === 'opted_out';
+  const hasPreview = previews.some(preview => preview.id === entry.preview_id);
+  const canCopy = Boolean(offer.mailing_address && prospect.email && hasPreview && !optedOut);
+  const footer = offer.mailing_address + '\n\nThis is a commercial offer. Reply “no thanks” if you’d prefer no follow-up.';
+  return shell('Sales pilot · ' + prospect.name,'<p><a href="/admin/pilot">← Sales pilot</a></p><div class="bar"><div><h1>' +
+    e(prospect.name) + '</h1><p class="muted">' + e(prospect.location) + '</p></div>' +
+    '<a class="button secondary" href="' + record + '">Open business record</a></div><div class="grid">' +
+    '<section class="card"><h2>Track this prospect</h2>' +
+    post(path + '/tracking',revision +
+      select('wave','Outreach wave',{'1':'Wave 1','2':'Wave 2'},entry.wave) +
+      select('status','Status',pilotStatuses,entry.status) +
+      input('follow_up','Next follow-up',entry.follow_up,10,'type="date"') +
+      area('notes','Reply, next step, or launch details',entry.notes) + button('Save tracking')) +
+    (['shortlisted','draft'].includes(entry.status) ? '<hr>' +
+      post(path + '/remove',revision + button('Remove from shortlist','class="secondary"')) : '') +
+    '</section><section class="card"><h2>Outreach email</h2><p><strong>To</strong> ' + e(prospect.email || 'Business email needed') + '</p>' +
+    (optedOut ? '<p class="note warn">This business opted out of email.</p>'
+      : (!prospect.email || !previews.length
+        ? '<p class="note warn">Save a business email and approve a preview for presentation in the <a href="' + record + '">business record</a>.</p>'
+        : post(path + '/generate',revision + select('preview','Presentation-approved preview',
+          Object.fromEntries(previews.map(p => [p.id,p.label])),entry.preview_id || '') +
+          button(entry.body ? 'Replace draft with current offer' : 'Generate email draft','class="secondary"')))) +
+    (entry.body ? '<hr>' + post(path + '/draft',revision + '<div id="pilot-draft">' +
+      input('subject','Subject',entry.subject,240,'required') + area('body','Message',entry.body,5000) + '</div>' +
+      (offer.mailing_address ? '<div id="pilot-footer" class="note">' + e(footer) + '</div>'
+        : '<p class="note warn">Add the business mailing address in the <a href="/admin/pilot">pilot offer</a> to copy the complete email.</p>') +
+      '<div class="actions">' + (prospect.email && hasPreview && !optedOut ? button('Save email draft') : '') +
+      (canCopy ? '<button type="button" class="secondary" data-copy="subject">Copy subject</button>' +
+        '<button type="button" class="secondary" data-copy="body">Copy email</button>' : '') +
+      '</div><p id="pilot-copy-status" role="status"></p>') : '') +
+    '</section></div>', { admin:true, script: canCopy ? '<script src="/admin/pilot.js" defer></script>' : '' });
+}
+
+export const pilotScript = `
+for (const button of document.querySelectorAll('[data-copy]')) {
+  button.addEventListener('click', async () => {
+    const field = button.form.elements.namedItem(button.dataset.copy);
+    const status = document.getElementById('pilot-copy-status');
+    const footer = document.getElementById('pilot-footer');
+    try {
+      await navigator.clipboard.writeText(field.value + (button.dataset.copy === 'body' ? '\\n\\n' + footer.textContent : ''));
+      status.textContent = button.dataset.copy === 'body' ? 'Email copied.' : 'Subject copied.';
+    } catch {
+      field.select();
+      status.textContent = 'Clipboard unavailable. Copy the selection and include the email footer.';
+    }
+  });
+}
+`;
 
 function prospectInputs(p) {
   return '<div class="grid">' + input('name','Business name',p.name,180,'required') +
@@ -71,7 +158,7 @@ function contentInputs(content) {
     input(key,label,content[key],key === 'phone' ? 35 : 180,({ name:'required', phone:'type="tel"', email:'type="email"' })[key] || '')).join('');
 }
 
-export function prospect(p, evidence, previews, activities) {
+export function prospect(p, evidence, previews, activities, inPilot) {
   const path = '/admin/prospect/' + p.id;
   const previewCards = previews.map(item => {
     const base = '/admin/preview/' + item.id;
@@ -96,8 +183,9 @@ export function prospect(p, evidence, previews, activities) {
         (item.active_invite ? post(base + '/revoke',button('Revoke code','class="secondary"')) : '') + '</div>' : '') +
       (item.submissions.length ? '<ul class="plain">' + item.submissions.map(s => '<li><a href="/admin/submission/' + e(s.id) + '">Submission ' + e(s.created) + ' UTC</a></li>').join('') + '</ul>' : '') + '</div>';
   }).join('');
-  return shell(p.name, '<p><a href="/admin">← Prospects</a></p><h1>' + e(p.name) + '</h1><p class="muted">' +
-    e([p.industry,p.location,p.stage].filter(Boolean).join(' · ')) + '</p><div class="grid"><section><h2>Business record</h2><div class="card">' +
+  return shell(p.name, '<p><a href="/admin">← Prospects</a></p><div class="bar"><div><h1>' + e(p.name) + '</h1><p class="muted">' +
+    e([p.industry,p.location,p.stage].filter(Boolean).join(' · ')) + '</p></div>' + pilotLink(p.id,inPilot) +
+    '</div><div class="grid"><section><h2>Business record</h2><div class="card">' +
     post(path,hidden('revision',p.revision) + prospectInputs(p) + button('Save prospect')) + '</div><h2>Verification evidence</h2>' +
     '<ul class="plain card">' + (evidence.length ? evidence.map(x => '<li><strong>' + e(x.source) + '</strong> ' +
       openLink(x.url,'Open source') + '<br>' + e(x.finding) + '<br><small>' + e(x.checked || 'Date unavailable') + '</small></li>').join('') :

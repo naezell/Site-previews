@@ -1,5 +1,5 @@
 import { administrator, boundedForm, digest, newCode, requireSameOrigin } from './auth.mjs';
-import { completion, escape, field, identity, images, linkField, Problem, qualifying, siteContent, stages, verification } from './model.mjs';
+import { completion, escape, field, identity, images, linkField, pilotEmail, pilotStatuses, Problem, qualifying, siteContent, stages, verification } from './model.mjs';
 import { quality, renderSite } from './render.mjs';
 import * as view from './views.mjs';
 
@@ -43,6 +43,98 @@ function dateField(form,key,required = false) {
     throw new Problem(400,'Enter a valid date.');
   }
   return value;
+}
+
+function pilotNumber(form, key, min, max, currency = false) {
+  const value = field(form,key,14,true);
+  const format = currency ? /^\d+(\.\d{1,2})?$/ : /^\d+$/;
+  const amount = currency ? Math.round(Number(value) * 100) : Number(value);
+  if (!format.test(value) || amount < min || amount > max) {
+    throw new Problem(400,'Check the pilot prices, turnaround, and revision count.');
+  }
+  return amount;
+}
+
+function pilotRevision(form) {
+  const value = field(form,'revision',12,true);
+  if (!/^\d+$/.test(value)) throw new Problem(400,'Reload the sales pilot before saving.');
+  return Number(value);
+}
+
+async function salesPilot(db, request, id, action) {
+  const home = '/admin/pilot';
+  const offer = () => db.one('SELECT * FROM sales_pilot_offer WHERE id=1');
+  if (!id && request.method === 'GET') {
+    const [settings,rows] = await Promise.all([
+      offer(),
+      db.all(`SELECT s.*,p.name,p.location,p.email FROM sales_pilot_prospects s
+        JOIN prospects p ON p.id=s.prospect_id ORDER BY s.wave,
+        CASE WHEN s.follow_up='' THEN 1 ELSE 0 END,s.follow_up,p.name COLLATE NOCASE,p.id`)
+    ]);
+    return send(view.salesPilot(settings,rows));
+  }
+  if (!id && request.method === 'POST') {
+    const form = await boundedForm(request);
+    const result = await db.run(`UPDATE sales_pilot_offer SET setup_cents=?,monthly_cents=?,business_days=?,
+      revisions=?,scope=?,sender=?,mailing_address=?,revision=revision+1 WHERE id=1 AND revision=?`,
+      pilotNumber(form,'setup',1,10_000_000,true),pilotNumber(form,'monthly',0,1_000_000,true),
+      pilotNumber(form,'days',1,365),pilotNumber(form,'revisions',0,20),field(form,'scope',800,true),
+      field(form,'sender',100,true),field(form,'mailing_address',300),pilotRevision(form));
+    if (!changed(result)) throw new Problem(409,'The offer changed. Reload before saving.');
+    return redirect(home);
+  }
+
+  const detail = home + '/' + id;
+  const prospect = await db.one('SELECT * FROM prospects WHERE id=?',id);
+  if (!prospect) return missing();
+  if (action === 'add' && request.method === 'POST') {
+    await db.run('INSERT INTO sales_pilot_prospects(prospect_id) VALUES (?) ON CONFLICT(prospect_id) DO NOTHING',id);
+    return redirect(detail);
+  }
+  const entry = await db.one('SELECT * FROM sales_pilot_prospects WHERE prospect_id=?',id);
+  if (!entry) return missing();
+  if (request.method === 'GET' && !action) {
+    const [settings,previews] = await Promise.all([
+      offer(),
+      db.all('SELECT id,label FROM previews WHERE prospect_id=? AND approved=1 ORDER BY label,id',id)
+    ]);
+    return send(view.pilotProspect(prospect,entry,settings,previews));
+  }
+  if (request.method !== 'POST') return missing();
+
+  const form = await boundedForm(request);
+  const revision = pilotRevision(form);
+  let result;
+  if (action === 'tracking') {
+    const wave = field(form,'wave',1,true);
+    const status = field(form,'status',16,true);
+    if (!['1','2'].includes(wave) || !Object.hasOwn(pilotStatuses,status)) throw new Problem(400,'Choose a pilot wave and status.');
+    if (status === 'draft' && !entry.body) throw new Problem(400,'Create an outreach draft first.');
+    result = await db.run(`UPDATE sales_pilot_prospects SET wave=?,status=?,follow_up=?,notes=?,revision=revision+1
+      WHERE prospect_id=? AND revision=?`,wave,status,dateField(form,'follow_up'),field(form,'notes',1800),id,revision);
+  } else if (action === 'remove') {
+    result = await db.run(`DELETE FROM sales_pilot_prospects WHERE prospect_id=? AND revision=?
+      AND status IN ('shortlisted','draft')`,id,revision);
+    if (changed(result)) return redirect(home);
+  } else if (action === 'generate' || action === 'draft') {
+    if (entry.status === 'opted_out') throw new Problem(409,'This prospect opted out of email.');
+    const previewId = action === 'generate' ? field(form,'preview',36,true) : entry.preview_id;
+    const preview = await db.one('SELECT id FROM previews WHERE id=? AND prospect_id=? AND approved=1',previewId,id);
+    if (!preview || !prospect.email) throw new Problem(409,'Use a presentation-approved preview and save a business email first.');
+    const draft = action === 'generate'
+      ? pilotEmail(prospect,await offer(),new URL('/showcase/' + preview.id,request.url).href)
+      : { subject:field(form,'subject',240,true),body:field(form,'body',5000,true) };
+    if (/[\r\n]/.test(draft.subject)) throw new Problem(400,'Enter a single-line subject.');
+    result = await db.run(`UPDATE sales_pilot_prospects SET subject=?,body=?,preview_id=?,
+      status=CASE WHEN status='shortlisted' THEN 'draft' ELSE status END,revision=revision+1
+      WHERE prospect_id=? AND revision=? AND EXISTS
+        (SELECT 1 FROM previews WHERE id=? AND prospect_id=? AND approved=1)`,
+      draft.subject,draft.body,preview.id,id,revision,preview.id,id);
+  } else {
+    return missing();
+  }
+  if (!changed(result)) throw new Problem(409,'The prospect or preview changed. Reload before saving.');
+  return redirect(detail);
 }
 
 async function validateProspect(form, db, id) {
@@ -140,6 +232,7 @@ async function list(db,url) {
   const page = Math.max(1, Math.min(10_000, Number.parseInt(url.searchParams.get('page'),10) || 1));
   const [rows,industries,salespeople,counts] = await Promise.all([
     db.all(`SELECT p.*,(SELECT count(*) FROM previews v WHERE v.prospect_id=p.id) AS preview_count,
+      EXISTS(SELECT 1 FROM sales_pilot_prospects s WHERE s.prospect_id=p.id) AS in_pilot,
       (SELECT count(*) FROM submissions s JOIN previews v ON v.id=s.preview_id WHERE v.prospect_id=p.id) AS submission_count,
       (SELECT v.url FROM previews v WHERE v.prospect_id=p.id AND v.url IS NOT NULL
         ORDER BY CASE WHEN v.url LIKE 'https://7d-website-demos.pages.dev/%' THEN 0 ELSE 1 END, v.label COLLATE NOCASE, v.id LIMIT 1) AS existing_demo
@@ -157,19 +250,20 @@ async function manageProspect(db, request, id, action, actor) {
   const p = await db.one('SELECT * FROM prospects WHERE id=?',id);
   if (!p) return missing();
   if (request.method === 'GET' && !action) {
-    const [evidence,previews,submissions,activities] = await Promise.all([
+    const [evidence,previews,submissions,activities,pilot] = await Promise.all([
       db.all('SELECT * FROM evidence WHERE prospect_id=? ORDER BY checked DESC,id',id),
       db.all(`SELECT v.*, EXISTS(SELECT 1 FROM invites i WHERE i.preview_id=v.id AND i.expires>? AND i.used=0 AND i.revoked=0) AS active_invite
         FROM previews v WHERE v.prospect_id=? ORDER BY v.label,v.id`,now(),id),
       db.all(`SELECT s.id,s.preview_id,s.created FROM submissions s JOIN previews v ON v.id=s.preview_id
         WHERE v.prospect_id=? ORDER BY s.created DESC,s.id`,id),
-      db.all('SELECT actor,note,created FROM activities WHERE prospect_id=? ORDER BY created DESC,id LIMIT 100',id)
+      db.all('SELECT actor,note,created FROM activities WHERE prospect_id=? ORDER BY created DESC,id LIMIT 100',id),
+      db.one('SELECT 1 FROM sales_pilot_prospects WHERE prospect_id=?',id)
     ]);
     for (const v of previews) {
       v.content = loadJson(v.content);
       v.submissions = submissions.filter(s => s.preview_id === v.id);
     }
-    return send(view.prospect(p,evidence,previews,activities));
+    return send(view.prospect(p,evidence,previews,activities,Boolean(pilot)));
   }
   if (request.method !== 'POST') return missing();
   const form = await boundedForm(request);
@@ -328,6 +422,12 @@ async function manageDraft(db, request, id, action, actor) {
 async function admin(db, request, url, actor) {
   const path = url.pathname;
   if (path === '/admin' && request.method === 'GET') return list(db,url);
+  if (path === '/admin/pilot') return salesPilot(db,request);
+  if (path === '/admin/pilot.js' && request.method === 'GET') {
+    return send(view.pilotScript,200,{'Content-Type':'text/javascript; charset=utf-8'});
+  }
+  const pilotHit = match(path,'/admin/pilot/(' + uuid + ')(?:/(add|tracking|generate|draft|remove))?');
+  if (pilotHit) return salesPilot(db,request,pilotHit[1],pilotHit[2]);
   if (path === '/admin/discover' && request.method === 'GET') {
     return send(view.discover((url.searchParams.get('industry') || '').trim().slice(0,100),
       (url.searchParams.get('area') || '').trim().slice(0,120)));

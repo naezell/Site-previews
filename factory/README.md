@@ -10,6 +10,10 @@ An internal prospect and website production workspace for the Texas service busi
 4. The customer confirms details, edits website sections, enters services/hours, uploads authorized images, and reviews the information. The submission creates a private brief and an initial draft.
 5. Review the diff, missing fields, and files. For older static demos, compare the brief against the linked HTML. The baseline contains business and contact fields only. Prepare a revised version as needed. Approve the exact version and download its HTML and the work package. Images from the customer are deliberately delivered as separate private files for asset review and insertion. Older approved HTML remains available for rollback. Publish the finished build through the customer's intended host after final approval and record the published stage.
 
+## Sales pilot
+
+Open **Sales pilot** to set the offer and sender details. From **Prospects**, add existing businesses to the shortlist and assign their outreach wave. After approving a preview for presentation, generate an email that links to its customer showcase. Review and save edits before copying the draft. The copy action includes the business mailing address from the pilot offer. Send from your email client, then log replies, follow-up dates, payments, and launches in the pilot record. The dashboard counts confirmed payments and launches from those statuses.
+
 ## Local development
 
 Requires Node.js 24 or later. Run these commands from `factory/`.

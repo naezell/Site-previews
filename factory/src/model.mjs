@@ -10,6 +10,33 @@ export const verification = {
 };
 export const qualifying = ['no_website_found', 'facebook_only', 'owner_confirmed_none'];
 
+export const pilotStatuses = {
+  shortlisted:'Shortlisted', draft:'Draft ready', contacted:'Contacted', replied:'Replied',
+  quoted:'Quoted', paid:'Paid', launched:'Launched', declined:'Declined', opted_out:'Opted out'
+};
+export const offerPrice = cents => new Intl.NumberFormat('en-US',{
+  style:'currency', currency:'USD', minimumFractionDigits:cents % 100 ? 2 : 0
+}).format(cents / 100);
+
+export function pilotEmail(prospect, offer, preview) {
+  const revisions = offer.revisions === 1 ? 'One round of revisions' : offer.revisions + ' rounds of revisions';
+  const hosting = offer.monthly_cents > 0
+    ? '\n\nOptional hosting and one small update per month are ' + offerPrice(offer.monthly_cents) + '/month.'
+    : '';
+  return {
+    subject:'Website idea for ' + prospect.name,
+    body:'Hi ' + prospect.name + ' team,\n\nI’m ' + offer.sender +
+      ' with 7D Business Solutions. I put together a one-page website concept for your business.\n\n' +
+      'Here’s the independent preview: ' + preview + '\n\n' +
+      'If you like the direction, I can launch a site on a domain you own for ' + offerPrice(offer.setup_cents) +
+      '. ' + offer.scope + (offer.revisions ? ' ' + revisions + ' included.' : '') +
+      ' I aim to launch within ' + offer.business_days +
+      ' business days after receiving your approved content and domain access.' + hosting +
+      '\n\nWould you be open to a quick call to see if it would be useful for your business?\n\n' +
+      offer.sender + '\n7D Business Solutions'
+  };
+}
+
 export const escape = value => String(value ?? '').replace(/[&<>"']/g, character =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 

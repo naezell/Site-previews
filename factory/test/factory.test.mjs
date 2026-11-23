@@ -70,6 +70,45 @@ test('admin access fails closed and requests require their own origin',async () 
   assert.equal((await call('/admin/new',{}, { origin:'https://other.example' })).status,403);
 });
 
+test('sales pilot uses existing prospects and approved previews, and tracks a paid launch',async () => {
+  const { db,call } = context(true);
+  const prospect = db.prepare('SELECT id FROM prospects').get().id;
+  const preview = db.prepare('SELECT id FROM previews WHERE label=?').get('Original').id;
+  const pilot = '/admin/pilot';
+  const detail = pilot + '/' + prospect;
+  assert.equal((await call(pilot,undefined,{ private:false })).status,403);
+  assert.match(await (await call('/admin')).text(),/Add to pilot/);
+  assert.match(await (await call(pilot)).text(),/\$499 setup/);
+  assert.equal((await call(detail + '/add',{}, { origin:'https://other.example' })).status,403);
+  assert.equal((await call(detail + '/add',{})).headers.get('location'),detail);
+  assert.equal((await call(detail + '/add',{})).status,303);
+  assert.equal(db.prepare('SELECT count(*) AS count FROM sales_pilot_prospects').get().count,1);
+  assert.equal((await call(detail + '/generate',{ preview,revision:'0' })).status,409);
+  assert.equal((await call('/admin/preview/' + preview + '/approval',{ mode:'approve',review:'yes' })).status,303);
+  assert.equal((await call(detail + '/generate',{ preview,revision:'0' })).status,303);
+  const draft = await (await call(detail)).text();
+  assert.match(draft,/Website idea for Example Pressure Washing/);
+  assert.match(draft,new RegExp('/showcase/' + preview));
+  assert.match(draft,/\$499/);
+  assert.doesNotMatch(draft,/Copy email/);
+  const settings = { setup:'549.50',monthly:'29',days:'7',revisions:'1',scope:'One page and a quote form.',
+    sender:'Nate',mailing_address:'PO Box 1, Example, TX 00000',revision:'0' };
+  assert.equal((await call(pilot,{ ...settings,setup:'2e3' })).status,400);
+  assert.equal((await call(pilot,settings)).status,303);
+  assert.equal((await call(pilot,settings)).status,409);
+  assert.match(await (await call(pilot)).text(),/\$549\.50 setup/);
+  assert.match(await (await call(detail)).text(),/Copy email/);
+  assert.equal((await call(detail + '/draft',{ subject:'An idea for your business',body:'A revised offer',revision:'1' })).status,303);
+  assert.equal((await call(detail + '/tracking',{ wave:'2',status:'paid',follow_up:'2026-12-01',notes:'Deposit in',revision:'1' })).status,409);
+  assert.equal((await call(detail + '/tracking',{ wave:'2',status:'paid',follow_up:'2026-12-01',notes:'Deposit in',revision:'2' })).status,303);
+  assert.equal((await call(detail + '/remove',{ revision:'3' })).status,409);
+  assert.equal((await call(detail + '/tracking',{ wave:'2',status:'launched',follow_up:'',notes:'Live',revision:'3' })).status,303);
+  assert.match(await (await call(pilot)).text(),/<strong>1<\/strong>Paid.*<strong>1<\/strong>Launched/);
+  assert.equal((await call(detail + '/tracking',{ wave:'2',status:'opted_out',revision:'4' })).status,303);
+  assert.equal((await call(detail + '/generate',{ preview,revision:'5' })).status,409);
+  assert.doesNotMatch(await (await call(detail)).text(),/Copy email/);
+});
+
 test('previews and codes follow eligibility, approval, replacement, and revocation',async () => {
   const { call,db } = context();
   await eligible(call);
